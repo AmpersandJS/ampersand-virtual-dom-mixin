@@ -10,19 +10,21 @@ module.exports = {
     renderOnViewChange: function () {
         this.on('change', this.render);
     },
+    
     renderOnModelChange: function () {
         if (this.model) {
             this.listenTo(this.model, 'change', this.render);
         }
     },
-    renderWithTemplate: function () {
+    
+    renderWithTemplate: function (spec) {
         var firstRender = !this.tree || !this.el;
         var renderedTemplate, newTree;
 
         if (isString(this.template)) {
             renderedTemplate = this.template;
         } else {
-            renderedTemplate = this.template(this);
+            renderedTemplate = this.template(spec || this);
         }
 
         newTree = this.tovdom(parse(renderedTemplate, {
@@ -39,7 +41,7 @@ module.exports = {
             patch(this.el, patches);
         }
     },
-
+    
     tovdom: function (ast) {
         if (ast.type === 'text') {
             return ast.content;
