@@ -1,6 +1,6 @@
 {
   "name": "ampersand-virtual-dom-mixin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "dependencies": {
     "amp-is-string": "^1.0.0",
     "html-parse-stringify": "^1.0.1",
@@ -8,6 +8,5 @@
   },
   "license": "ISC",
   "main": "mixin.js",
-  "scripts": {
-  }
+  "scripts": {}
 }
