@@ -10,75 +10,77 @@ module.exports = {
     renderOnViewChange: function () {
         this.on('change', this.render);
     },
-    
     renderOnModelChange: function () {
         if (this.model) {
             this.listenTo(this.model, 'change', this.render);
         }
     },
-    
-    renderWithTemplate: function (spec) {
+    renderWithTemplate: function (data) {
         var firstRender = !this.tree || !this.el;
         var renderedTemplate, newTree;
 
         if (isString(this.template)) {
             renderedTemplate = this.template;
         } else {
-            renderedTemplate = this.template(spec || this);
+            renderedTemplate = this.template(data || this);
         }
 
-        newTree = this.tovdom(parse(renderedTemplate, {
-            components: this.components || {}
-        }), this);
+        newTree = this.astToVdom(parse(renderedTemplate.trim()));
 
         if (firstRender) {
             var el = createElement(newTree);
             this.tree = newTree;
-            this.el = el;
+            if (this.setElement) {
+                this.el.appendChild(el);
+                this._backboneEl = el;
+            } else {
+                this.el = el;
+            }
         } else {
             var patches = diff(this.tree, newTree);
             this.tree = newTree;
-            patch(this.el, patches);
+            patch(this._backboneEl || this.el, patches);
         }
     },
-    
-    tovdom: function (ast) {
+
+    astToVdom: function (ast) {
         if (ast.type === 'text') {
             return ast.content;
         }
 
         if (ast.type === 'tag') {
-            return h(ast.name, this.parseTagAttrs(ast.attrs), ast.children.map(this.tovdom, this));
-        }
+            if (!(this.components||{})[ast.name]) {
+                return h(ast.name, this.parseTagAttrs(ast.attrs), ast.children.map(this.astToVdom, this));
+            } else {
 
-        if (ast.type === 'component') {
-            var Constructor = this.components[ast.name];
-            var attrs = this.parseComponentAttrs(ast.attrs);
+                //TODO: this whole bit needs some work;
+                var Constructor = this.components[ast.name];
+                var attrs = this.parseComponentAttrs(ast.attrs);
 
-            return {
-                type: 'Widget',
-                name: 'MyWidget',
-                id: ast.attrs.key,
-                key: ast.attrs.key,
-                init: function () {
-                    this.view = new Constructor(attrs);
-                    this.view.render();
-                    return this.view.el;
-                },
-                update: function (previous, dom) {
-                    this.view = previous.view;
-                    this.view.set(attrs);
-                    return this.view.el;
-                },
-                destroy: function () {
-                    this.view.remove();
-                }
-            };
+                return {
+                    type: 'Widget',
+                    name: 'MyWidget',
+                    id: ast.attrs.key,
+                    key: ast.attrs.key,
+                    init: function () {
+                        this.view = new Constructor(attrs);
+                        this.view.render();
+                        return this.view.el;
+                    },
+                    update: function (previous, dom) {
+                        this.view = previous.view;
+                        this.view.set(attrs);
+                        return this.view.el;
+                    },
+                    destroy: function () {
+                        this.view.remove();
+                    }
+                };
+            }
         }
     },
 
     parseComponentAttrs: function (attrs) {
-        var res = {};
         var key, val, path, match;
         var isCurlyRe = /^\s*{\s*([^}]+)\s*}\s*$/;
 
@@ -87,40 +89,33 @@ module.exports = {
 
             match = val.match(isCurlyRe);
             if (!match) {
-                res[key] = coerce(val);
+                attrs[key] = coerce(val);
             } else {
                 path = match[1].split('.');
-                res[key] = path.reduce(function (o, pathPart) {
+                attrs[key] = path.reduce(function (o, pathPart) {
                     return o && o[pathPart];
                 }, this);
             }
         }
-        return res;
+        return attrs;
     },
 
     parseTagAttrs: function (attrs) {
-        var res = {};
-        res.attributes = attrs.attributes || {};
-        var key, val;
-        for (key in attrs) {
-            val = attrs[key];
-            if (key.slice(0,2) === 'on' && val.trim().match(/^{[^}]+}$/)) {
-                val = val.trim().slice(1,-1);
-                if (typeof this[val] === 'function') {
-                    res[key] = this[val].bind(this);
-                } else {
-                    res[key] = attrs[key];
-                }
-            } else if (key.slice(0,5) === 'data-') {
-                res.attributes[key] = attrs[key];
-            } else {
-                if (key === 'class') {
-                    key = 'className';
-                }
-                res[key] = val;
+        attrs = {
+            attributes: attrs
+        };
+        var keep = ['key', 'namespace'];
+        var i = keep.length;
+        var k;
+
+        while(i--) {
+            k = keep[i];
+            if (attrs.attributes[k]) {
+                attrs[k] = attrs.attributes[k];
+                delete attrs.attributes[k];
             }
         }
-        return res;
+        return attrs;
     }
 };
 
