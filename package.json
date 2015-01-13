@@ -8,5 +8,19 @@
   },
   "license": "ISC",
   "main": "mixin.js",
-  "scripts": {}
+  "scripts": {
+    "start": "run-browser test/index.js",
+    "test": "browserify test/index.js | tape-run | tap-spec"
+  },
+  "devDependencies": {
+    "ampersand-view": "^7.2.0",
+    "browserify": "^8.1.0",
+    "jshint": "^2.5.11",
+    "phantomjs": "^1.9.13",
+    "precommit-hook": "^1.0.7",
+    "run-browser": "^2.0.1",
+    "tap-spec": "^2.1.2",
+    "tape": "^3.0.3",
+    "tape-run": "^0.3.0"
+  }
 }
