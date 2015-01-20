@@ -1,6 +1,6 @@
 {
   "name": "ampersand-virtual-dom-mixin",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "dependencies": {
     "amp-is-string": "^1.0.0",
     "get-object-path": "0.0.2",
