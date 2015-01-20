@@ -4,6 +4,7 @@ var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
 var isString = require('amp-is-string');
+var getPath = require('get-object-path');
 
 function astAttrsToVdomAttrs(attrs) {
     var tagAttrs = {
@@ -75,10 +76,7 @@ module.exports = {
                 patch(this.el, patches);
             }
         }
-
-        if (isFirstRender && this.onFirstRender) {
-            this.onFirstRender(data);
-        }
+        this.trigger('render:after');
     },
 
     astToVdom: function (ast) {
@@ -93,5 +91,52 @@ module.exports = {
                 ast.children.map(this.astToVdom, this)
             );
         }
+    },
+
+    _parseSubview: function (subview, name) {
+        this._subviewStatus = this._subviewStatus || {};
+
+        var self = this;
+        var opts = {
+            selector: subview.container || '[data-hook="' + subview.hook + '"]',
+            waitFor: subview.waitFor || '',
+            prepareView: subview.prepareView || function () {
+                return new subview.constructor({
+                    //el: el,
+                    parent: self
+                });
+            }
+        };
+
+        function updateSubview () {
+            var el, subview;
+
+            if (this._subviewStatus[name] && this._subviewStatus[name].rendered) {
+                //Remove if rendered but no longer in the dom
+                if (!this.query(opts.selector)) {
+                    this._subviewStatus[name].view.remove();
+                    delete this._subviewStatus[name];
+                    delete this[name];
+                }
+            } else {
+                if (!this.el || !(el = this.query(opts.selector))) {
+                    return;
+                }
+
+                if (!opts.waitFor || getPath(this, opts.waitFor)) {
+                    subview = this[name] = opts.prepareView.call(this);
+                    subview.render();
+                    this._subviewStatus[name] = {
+                        rendered: true,
+                        view: subview
+                    };
+                    el.appendChild(subview.el);
+                    this.registerSubview(subview);
+                }
+            }
+        }
+
+        //this.on('change', updateSubview, this);
+        this.on('render:after', updateSubview, this);
     }
 };

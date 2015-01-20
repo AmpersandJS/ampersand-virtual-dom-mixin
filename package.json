@@ -3,6 +3,7 @@
   "version": "0.1.2",
   "dependencies": {
     "amp-is-string": "^1.0.0",
+    "get-object-path": "0.0.2",
     "html-parse-stringify": "^1.0.1",
     "virtual-dom": "0.0.23"
   },
@@ -10,10 +11,12 @@
   "main": "mixin.js",
   "scripts": {
     "start": "run-browser test/index.js",
-    "test": "browserify test/index.js | tape-run | tap-spec"
+    "test": "browserify test/index.js | tape-run | tap-spec",
+    "demo": "beefy demo.js"
   },
   "devDependencies": {
     "ampersand-view": "^7.2.0",
+    "beefy": "^2.1.2",
     "browserify": "^8.1.0",
     "jshint": "^2.5.11",
     "phantomjs": "^1.9.13",
