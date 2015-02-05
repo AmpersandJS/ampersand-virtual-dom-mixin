@@ -6,6 +6,11 @@ var createElement = require('virtual-dom/create-element');
 var isString = require('amp-is-string');
 var getPath = require('get-object-path');
 
+var unescape = function (content) {
+    return content.replace('&gt;', '>')
+                  .replace('&lt;', '<');
+};
+
 function astAttrsToVdomAttrs(attrs) {
     var tagAttrs = {
         attributes: attrs
@@ -81,7 +86,7 @@ module.exports = {
 
     astToVdom: function (ast) {
         if (ast.type === 'text') {
-            return ast.content;
+            return unescape(ast.content);
         }
 
         if (ast.type === 'tag') {
