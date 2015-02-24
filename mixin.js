@@ -8,7 +8,10 @@ var getPath = require('get-object-path');
 
 var unescape = function (content) {
     return content.replace(/&gt;/g, '>')
-                  .replace(/&lt;/g, '<');
+                  .replace(/&lt;/g, '<')
+                  .replace(/&amp;/g, '&')
+                  .replace(/&#39;/g, '\'')
+                  .replace(/&quot;/g, '"');
 };
 
 function astAttrsToVdomAttrs(attrs) {
