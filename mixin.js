@@ -3,7 +3,7 @@ var h = require('virtual-dom/h');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
-var isString = require('amp-is-string');
+var isString = require('lodash.isstring');
 var getPath = require('get-object-path');
 
 var unescape = function (content) {
