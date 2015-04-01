@@ -25,6 +25,6 @@
     "run-browser": "^2.0.1",
     "tap-spec": "^2.1.2",
     "tape": "^3.0.3",
-    "tape-run": "^0.3.0"
+    "tape-run": "^1.0.0"
   }
 }
