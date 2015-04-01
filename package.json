@@ -1,6 +1,6 @@
 {
   "name": "ampersand-virtual-dom-mixin",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "repository": "AmpersandJS/ampersand-virtual-dom-mixin",
   "dependencies": {
     "get-object-path": "0.0.2",
