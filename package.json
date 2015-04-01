@@ -6,7 +6,7 @@
     "get-object-path": "0.0.2",
     "html-parse-stringify": "1.0.1",
     "lodash.isstring": "^3.0.1",
-    "virtual-dom": "0.0.23"
+    "virtual-dom": "^2.0.1"
   },
   "license": "ISC",
   "main": "mixin.js",
